@@ -12,7 +12,7 @@ public class MovieEntity {
     private Long id;
 
     private String title;
-    private Integer year;
+    private Integer releaseYear;
     private String rated;
     private String released;
     private String runtime;
