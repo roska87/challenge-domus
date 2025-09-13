@@ -8,6 +8,7 @@ import org.springframework.web.server.MissingRequestValueException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.server.ServerWebInputException;
 import reactor.core.publisher.Mono;
 
 @RestControllerAdvice
@@ -17,7 +18,8 @@ public class GlobalExceptionHandler {
             MethodArgumentTypeMismatchException.class,
             MissingRequestValueException.class,
             MethodArgumentNotValidException.class,
-            ConstraintViolationException.class
+            ConstraintViolationException.class,
+            ServerWebInputException.class
     })
     public Mono<ProblemDetail> handleBadRequest(Exception ex) {
         ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);

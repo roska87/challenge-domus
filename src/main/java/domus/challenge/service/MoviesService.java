@@ -1,86 +1,60 @@
 package domus.challenge.service;
 
 import domus.challenge.model.ApiMoviesPage;
-import domus.challenge.model.Movie;
-import domus.challenge.model.MovieEntity;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
-import org.springframework.data.relational.core.query.Query;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class MoviesService {
 
-    private final R2dbcEntityTemplate template;
-
-    @Value("${app.pagination.per-page:10}")
-    private int perPage;
+    private final WebClient moviesApiWebClient;
 
     public Mono<ApiMoviesPage> fetchPage(int page) {
-        int pageNumber = Math.max(page, 1);
-        long offset = (long) (pageNumber - 1) * perPage;
-
-        Mono<Long> totalMono = template.count(Query.empty(), MovieEntity.class);
-
-        Mono<List<Movie>> dataMono = template.select(
-                        Query.empty()
-                                .sort(Sort.by(Sort.Order.asc("id")))
-                                .limit(perPage)
-                                .offset(offset),
-                        MovieEntity.class)
-                .map(this::toDto)
-                .collectList();
-
-        return Mono.zip(totalMono, dataMono)
-                .map(tuple -> {
-                    long total = tuple.getT1();
-                    List<Movie> data = tuple.getT2();
-                    int totalPages = (int) Math.ceil(total / (double) perPage);
-
-                    ApiMoviesPage p = new ApiMoviesPage();
-                    p.setPage(pageNumber);
-                    p.setPerPage(perPage);
-                    p.setTotal(Math.toIntExact(total));
-                    p.setTotalPages(Math.max(totalPages, 1));
-                    p.setData(data);
-                    return p;
-                });
+        int p = Math.max(page, 1);
+        return moviesApiWebClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/api/movies/search")
+                        .queryParam("page", p)
+                        .build())
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError, resp ->
+                        resp.bodyToMono(String.class)
+                                .defaultIfEmpty("Client error")
+                                .map(msg -> new WebClientResponseException(
+                                        msg, resp.statusCode().value(),
+                                        resp.statusCode().toString(),
+                                        null, null, null))
+                )
+                .onStatus(HttpStatusCode::is5xxServerError, resp ->
+                        resp.bodyToMono(String.class)
+                                .defaultIfEmpty("Server error")
+                                .map(msg -> new WebClientResponseException(
+                                        msg, resp.statusCode().value(),
+                                        resp.statusCode().toString(),
+                                        null, null, null))
+                )
+                .bodyToMono(ApiMoviesPage.class);
     }
 
     /**
-     * “Paginación inteligente” local:
-     * lee page=1 para conocer totalPages y solicita el resto en paralelo.
+     * Paginación "inteligente":
+     * - Lee page=1 para conocer total_pages.
+     * - Solicita el resto en paralelo con concurrencia limitada.
      */
     public Flux<ApiMoviesPage> fetchAllPages() {
-        return fetchPage(1).flatMapMany(first -> {
-            int totalPages = Math.max(first.getTotalPages(), 1);
-            Flux<ApiMoviesPage> rest = Flux
-                    .range(2, Math.max(totalPages - 1, 0))
-                    .flatMap(this::fetchPage, /* concurrency */ 4);
-            return Flux.concat(Mono.just(first), rest);
-        });
-    }
-
-    private Movie toDto(MovieEntity e) {
-        Movie m = new Movie();
-        m.setTitle(e.getTitle());
-        if (e.getReleaseYear() != null) {
-            m.setReleaseYear(String.valueOf(e.getReleaseYear()));
-        }
-        m.setRated(e.getRated());
-        m.setReleased(e.getReleased());
-        m.setRuntime(e.getRuntime());
-        m.setGenre(e.getGenre());
-        m.setDirector(e.getDirector());
-        m.setWriter(e.getWriter());
-        m.setActors(e.getActors());
-        return m;
+        return fetchPage(1)
+                .flatMapMany(first -> {
+                    int totalPages = Math.max(first.getTotalPages(), 1);
+                    Flux<ApiMoviesPage> rest = Flux
+                            .range(2, Math.max(totalPages - 1, 0))
+                            .flatMap(this::fetchPage, /* concurrency */ 6);
+                    return Flux.concat(Mono.just(first), rest);
+                });
     }
 }
