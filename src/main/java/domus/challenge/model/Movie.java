@@ -6,7 +6,7 @@ import lombok.Data;
 public class Movie {
 
     private String title;
-    private String releaseYear;
+    private String year;
     private String rated;
     private String released;
     private String runtime;

@@ -123,13 +123,13 @@ public final class ExampleMoviesData {
         return p;
     }
 
-    private static Movie movie(String title, String director, String releaseYear) {
+    private static Movie movie(String title, String director, String year) {
         Movie m = new Movie();
         m.setTitle(title);
         m.setDirector(director);
-        m.setReleaseYear(releaseYear);                 // String, como en el contrato del challenge
+        m.setYear(year);                 // String, como en el contrato del challenge
         m.setRated("PG-13");
-        m.setReleased(releaseYear + "-01-01");
+        m.setReleased(year + "-01-01");
         m.setRuntime("100");
         m.setGenre("Drama");
         m.setWriter("");
