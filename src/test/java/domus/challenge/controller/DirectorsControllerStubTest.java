@@ -1,6 +1,8 @@
 package domus.challenge.controller;
 
+import domus.challenge.context.Constants;
 import domus.challenge.testsupport.MoviesServiceStubConfig;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -15,10 +17,13 @@ class DirectorsControllerStubTest {
     @Autowired
     WebTestClient webTestClient;
 
+    private static final String PATH =
+            StringUtils.join(Constants.API_PATH, Constants.SERVICE_DIRECTORS);
+
     @Test
     void threshold2_onlyWoodyAllen() {
         webTestClient.get()
-                .uri(uriBuilder -> uriBuilder.path("/api/directors")
+                .uri(uriBuilder -> uriBuilder.path(PATH)
                         .queryParam("threshold", 2).build())
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
@@ -31,7 +36,10 @@ class DirectorsControllerStubTest {
     @Test
     void nonNumericThreshold_returns400() {
         webTestClient.get()
-                .uri("/api/directors?threshold=abc")
+                .uri(uriBuilder -> uriBuilder
+                        .path(PATH)
+                        .queryParam("threshold", "abc")
+                        .build())
                 .exchange()
                 .expectStatus().isBadRequest();
     }
@@ -40,7 +48,10 @@ class DirectorsControllerStubTest {
     void threshold0_returnsAllSortedAlphabetically() {
         // Con ExampleMoviesData hay 20 directores distintos (> 0 películas)
         webTestClient.get()
-                .uri("/api/directors?threshold=0")
+                .uri(uriBuilder -> uriBuilder
+                        .path(PATH)
+                        .queryParam("threshold", 0)
+                        .build())
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody()
@@ -53,7 +64,10 @@ class DirectorsControllerStubTest {
     @Test
     void negativeThreshold_returnsEmptyList() {
         webTestClient.get()
-                .uri("/api/directors?threshold=-5")
+                .uri(uriBuilder -> uriBuilder
+                        .path(PATH)
+                        .queryParam("threshold", -5)
+                        .build())
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody()

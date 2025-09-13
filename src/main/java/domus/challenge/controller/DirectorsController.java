@@ -1,6 +1,7 @@
 package domus.challenge.controller;
 
 import domus.challenge.api.DirectorsResponse;
+import domus.challenge.context.Constants;
 import domus.challenge.service.DirectorsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -9,14 +10,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
-import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping(path = "/api", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(path = Constants.API_PATH, produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
 @Validated
 public class DirectorsController {
@@ -39,7 +39,7 @@ public class DirectorsController {
                             content = @Content)
             }
     )
-    @GetMapping("/directors")
+    @GetMapping(Constants.SERVICE_DIRECTORS)
     public Mono<DirectorsResponse> getDirectorsOverThreshold(
             @Parameter(description = "Umbral estricto. Devuelve directores con #películas > threshold",
                     example = "4")
