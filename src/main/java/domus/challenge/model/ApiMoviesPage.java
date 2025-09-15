@@ -1,15 +1,18 @@
 package domus.challenge.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+
+import java.util.Collections;
 import java.util.List;
 
 @Data
 public class ApiMoviesPage {
 
-    private int page;
-    private int perPage;
-    private int total;
-    private int totalPages;
-    private List<Movie> data;
+    @JsonProperty("page")        private int page;
+    @JsonProperty("per_page")    private int perPage;
+    @JsonProperty("total")       private int total;
+    @JsonProperty("total_pages") private int totalPages;
+    @JsonProperty("data")        private List<Movie> data = Collections.emptyList(); // avoid null
 
 }

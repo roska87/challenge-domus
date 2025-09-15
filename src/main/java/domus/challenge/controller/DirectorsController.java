@@ -24,24 +24,23 @@ public class DirectorsController {
     private final DirectorsService directorsService;
 
     @Operation(
-            summary = "Directores con cantidad de películas mayor al umbral",
+            summary = "Directors with a number of movies greater than the threshold",
             description = """
-                    Devuelve los nombres de directores cuyo conteo de películas (año > 2010 según la API de origen)
-                    es estrictamente mayor que el parámetro `threshold`. 
-                    - Si `threshold` < 0 => se devuelve lista vacía.
-                    - Si `threshold` no es numérico => error 400.
-                    Los nombres se devuelven ordenados alfabéticamente (case-insensitive).
+                    Returns the names of directors whose movie count is strictly greater than the `threshold` parameter.
+                    - If `threshold` < 0 => empty list is returned.
+                    - If `threshold` is not numeric => error 400. \n
+                    Names are returned alphabetically sorted (case-insensitive).
                     """,
             responses = {
                     @ApiResponse(responseCode = "200", description = "OK",
                             content = @Content(schema = @Schema(implementation = DirectorsResponse.class))),
-                    @ApiResponse(responseCode = "400", description = "Parámetro inválido",
+                    @ApiResponse(responseCode = "400", description = "Invalid parameter",
                             content = @Content)
             }
     )
     @GetMapping(Constants.SERVICE_DIRECTORS)
     public Mono<DirectorsResponse> getDirectorsOverThreshold(
-            @Parameter(description = "Umbral estricto. Devuelve directores con #películas > threshold",
+            @Parameter(description = "Strict threshold. Returns directors with #movies > threshold",
                     example = "4")
             @RequestParam(name = "threshold") @NotNull Integer threshold
     ) {

@@ -10,6 +10,8 @@ import reactor.test.StepVerifier;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.*;
+
 @SpringBootTest
 @Import(MoviesServiceStubConfig.class)
 class DirectorsServiceStubTest {
@@ -21,7 +23,7 @@ class DirectorsServiceStubTest {
     void threshold2_onlyWoodyAllen_sorted() {
         StepVerifier.create(directorsService.findDirectorsOverThreshold(2))
                 .assertNext(list ->
-                        org.assertj.core.api.Assertions.assertThat(list)
+                        assertThat(list)
                                 .containsExactly("Woody Allen"))
                 .verifyComplete();
     }
@@ -31,15 +33,15 @@ class DirectorsServiceStubTest {
         StepVerifier.create(directorsService.findDirectorsOverThreshold(0))
                 .assertNext(list -> {
                     // esperamos 20 directores (ver ExampleMoviesData)
-                    org.assertj.core.api.Assertions.assertThat(list).hasSize(20);
+                    assertThat(list).hasSize(20);
 
                     // lista está ordenada alfabéticamente (case-insensitive)
                     List<String> sorted = new ArrayList<>(list);
                     sorted.sort(String.CASE_INSENSITIVE_ORDER);
-                    org.assertj.core.api.Assertions.assertThat(list).isEqualTo(sorted);
+                    assertThat(list).isEqualTo(sorted);
 
                     // chequeos de presencia de algunos nombres representativos
-                    org.assertj.core.api.Assertions.assertThat(list).contains(
+                    assertThat(list).contains(
                             "Alejandro G. Iñárritu", "Alfonso Cuarón", "Christopher Nolan",
                             "Denis Villeneuve", "Greta Gerwig", "Martin Scorsese",
                             "Quentin Tarantino", "Ridley Scott", "Steven Spielberg",

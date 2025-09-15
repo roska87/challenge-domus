@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Primary;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-@TestConfiguration
+//@TestConfiguration
 public class MoviesServiceStubConfig {
 
     @Bean

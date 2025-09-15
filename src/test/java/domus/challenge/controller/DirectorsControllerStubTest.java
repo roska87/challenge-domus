@@ -2,7 +2,6 @@ package domus.challenge.controller;
 
 import domus.challenge.context.Constants;
 import domus.challenge.testsupport.MoviesServiceStubConfig;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -18,7 +17,7 @@ class DirectorsControllerStubTest {
     WebTestClient webTestClient;
 
     private static final String PATH =
-            StringUtils.join(Constants.API_PATH, Constants.SERVICE_DIRECTORS);
+            String.join("", Constants.API_PATH, Constants.SERVICE_DIRECTORS);
 
     @Test
     void threshold2_onlyWoodyAllen() {

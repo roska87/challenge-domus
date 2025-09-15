@@ -2,6 +2,7 @@ package domus.challenge.service;
 
 import domus.challenge.model.ApiMoviesPage;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -9,6 +10,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MoviesService {
@@ -17,6 +19,7 @@ public class MoviesService {
 
     public Mono<ApiMoviesPage> fetchPage(int page) {
         int p = Math.max(page, 1);
+        log.info("Fetching page {} to discover total_pages", p);
         return moviesApiWebClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/api/movies/search")
@@ -39,7 +42,9 @@ public class MoviesService {
                                         resp.statusCode().toString(),
                                         null, null, null))
                 )
-                .bodyToMono(ApiMoviesPage.class);
+                .bodyToMono(ApiMoviesPage.class)
+                .doOnNext(amp -> log.info("Fetched page={} items={}", amp.getPage(),
+                        amp.getData() == null ? null : amp.getData().size()));
     }
 
     /**

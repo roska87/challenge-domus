@@ -1,18 +1,19 @@
 package domus.challenge.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
 public class Movie {
 
-    private String title;
-    private String year;
-    private String rated;
-    private String released;
-    private String runtime;
-    private String genre;
-    private String director;
-    private String writer;
-    private String actors;
+    @JsonProperty("Title")   private String title;
+    @JsonProperty("Year")    private String year;
+    @JsonProperty("Rated")   private String rated;
+    @JsonProperty("Released")private String released;
+    @JsonProperty("Runtime") private String runtime;
+    @JsonProperty("Genre")   private String genre;
+    @JsonProperty("Director")private String director;
+    @JsonProperty("Writer")  private String writer;
+    @JsonProperty("Actors")  private String actors;
 
 }
