@@ -241,6 +241,4 @@ src/main/java/domus/challenge
 
 ---
 
-## 15) Notes
-This code is intended solely for the Domus challenge demonstration. Replace external dependencies or dataset as needed for production environments.
 
