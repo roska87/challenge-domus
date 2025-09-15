@@ -1,5 +1,6 @@
 package domus.challenge.service;
 
+import domus.challenge.integration.MoviesApiClient;
 import domus.challenge.model.ApiMoviesPage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,36 +16,10 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class MoviesService {
 
-    private final WebClient moviesApiWebClient;
+    private final MoviesApiClient moviesApiClient;
 
     public Mono<ApiMoviesPage> fetchPage(int page) {
-        int p = Math.max(page, 1);
-        log.info("Fetching page {} to discover total_pages", p);
-        return moviesApiWebClient.get()
-                .uri(uriBuilder -> uriBuilder
-                        .path("/api/movies/search")
-                        .queryParam("page", p)
-                        .build())
-                .retrieve()
-                .onStatus(HttpStatusCode::is4xxClientError, resp ->
-                        resp.bodyToMono(String.class)
-                                .defaultIfEmpty("Client error")
-                                .map(msg -> new WebClientResponseException(
-                                        msg, resp.statusCode().value(),
-                                        resp.statusCode().toString(),
-                                        null, null, null))
-                )
-                .onStatus(HttpStatusCode::is5xxServerError, resp ->
-                        resp.bodyToMono(String.class)
-                                .defaultIfEmpty("Server error")
-                                .map(msg -> new WebClientResponseException(
-                                        msg, resp.statusCode().value(),
-                                        resp.statusCode().toString(),
-                                        null, null, null))
-                )
-                .bodyToMono(ApiMoviesPage.class)
-                .doOnNext(amp -> log.info("Fetched page={} items={}", amp.getPage(),
-                        amp.getData() == null ? null : amp.getData().size()));
+        return moviesApiClient.fetchPage(page);
     }
 
     /**

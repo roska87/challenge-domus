@@ -1,7 +1,8 @@
 package domus.challenge.controller;
 
+import domus.challenge.config.MoviesApiClientStubConfig;
 import domus.challenge.context.Constants;
-import domus.challenge.testsupport.MoviesServiceStubConfig;
+import domus.challenge.integration.MoviesApiClient;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -10,7 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Import(MoviesServiceStubConfig.class)
+@Import(MoviesApiClientStubConfig.class)
 class DirectorsControllerStubTest {
 
     @Autowired

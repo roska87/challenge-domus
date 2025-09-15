@@ -1,6 +1,6 @@
 package domus.challenge.service;
 
-import domus.challenge.testsupport.MoviesServiceStubConfig;
+import domus.challenge.config.MoviesApiClientStubConfig;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -13,7 +13,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.*;
 
 @SpringBootTest
-@Import(MoviesServiceStubConfig.class)
+@Import(MoviesApiClientStubConfig.class)
 class DirectorsServiceStubTest {
 
     @Autowired
