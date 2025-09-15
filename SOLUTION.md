@@ -144,8 +144,7 @@ return moviesService.fetchAllPages()                                  // Flux<Ap
 
 ## 8) Logging
 - Per‑request logs for page fetching (e.g., `Fetched page=1 items=10`).
-- `logging.level.domus.challenge=DEBUG` for project code; optional Reactor Netty wiretap in development.
-- macOS DNS warning from Netty can be silenced or fixed by adding `netty-resolver-dns-native-macos` with the proper classifier.
+- `logging.level.domus.challenge=DEBUG` for project code.
 
 ---
 
@@ -238,7 +237,6 @@ src/main/java/domus/challenge
 - **Reactor NPE: “mapper returned a null value”**: this happens if `map(Movie::getDirector)` receives a movie with `Director = null` (the `filter` runs *after* `map`). Fix by switching to a null‑safe pipeline:
   - Replace `.map(Movie::getDirector).filter(Objects::nonNull)` with `.handle((m, sink) -> { var d = m.getDirector(); if (d != null && !d.isBlank()) sink.next(d.trim()); })`, **or**
   - Use `.map(Movie::getDirector).flatMap(name -> Mono.justOrEmpty(name))` before trimming/filtering.
-- **macOS DNS warning**: add `io.netty:netty-resolver-dns-native-macos` with the proper classifier (e.g., `osx-aarch_64`) or set `io.netty.resolver.dns.macos.native=false`.
 - **Failed to load ApplicationContext (tests)**: ensure test imports the `MoviesApiClient` stub (`@TestConfiguration`) and that it is marked `@Primary`. This will override the production bean provided by `MoviesIntegrationConfig`.
 
 ---

@@ -50,14 +50,6 @@
                 </configuration>
             </plugin>
         </plugins>
-        <extensions>
-            <!-- Detecta SO/arquitectura: expone ${os.detected.classifier} -->
-            <extension>
-                <groupId>kr.motd.maven</groupId>
-                <artifactId>os-maven-plugin</artifactId>
-                <version>1.7.1</version>
-            </extension>
-        </extensions>
     </build>
 
 	<dependencies>
@@ -140,15 +132,6 @@
             <artifactId>junit-platform-suite</artifactId>
             <version>1.10.2</version>
             <scope>test</scope>
-        </dependency>
-
-        <!-- Resolver DNS nativo de macOS (alinear versión con la de Netty que trae Spring Boot) -->
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-resolver-dns-native-macos</artifactId>
-            <!--suppress UnresolvedMavenProperty -->
-            <classifier>${os.detected.classifier}</classifier> <!-- osx-aarch_64 u osx-x86_64 -->
-            <scope>runtime</scope>
         </dependency>
 
 	</dependencies>
