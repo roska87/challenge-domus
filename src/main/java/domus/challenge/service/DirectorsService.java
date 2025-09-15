@@ -17,26 +17,26 @@ public class DirectorsService {
 
     public Mono<List<String>> findDirectorsOverThreshold(int threshold) {
         if (threshold < 0) {
-            // Requisito: umbrales negativos => lista vacía
+            // Requirement: negative thresholds => empty list
             return Mono.just(List.of());
         }
 
-        // Mapa concurrente (seguro ante concurrencia) para llevar el conteo de películas por director.
+        // Concurrent map (concurrency insurance) to keep the count of the movies by director.
         Map<String, Integer> counts = new ConcurrentHashMap<>();
 
-        return moviesService.fetchAllPages() // Obtiene un Flux<ApiMoviesPage> con todas las páginas de películas.
-                .flatMapIterable(page -> page.getData() == null ? List.<Movie>of() : page.getData()) // Por cada página, emite cada Movie; si data es null, emite lista vacía.
-                .map(Movie::getDirector) // Transforma cada Movie en el nombre de su director (String).
-                .filter(Objects::nonNull) // Descarta directores nulos para evitar NullPointerException.
-                .map(String::trim) // Elimina espacios en blanco al inicio/fin del nombre.
-                .filter(name -> !name.isEmpty()) // Descarta nombres vacíos tras el trim.
-                .doOnNext(director -> counts.merge(director, 1, Integer::sum)) // Incrementa el contador del director (merge: si no existe pone 1, si existe suma 1).
-                .then(Mono.fromCallable(() -> // Cuando el flujo anterior termina, calcula el resultado final en un Mono (operación bloqueante encapsulada).
-                        counts.entrySet().stream() // Recorre las entradas del mapa: director -> cantidad.
-                                .filter(e -> e.getValue() > threshold) // Mantiene solo los directores con cantidad estrictamente mayor que el umbral (threshold).
-                                .map(Map.Entry::getKey) // Se queda solo con el nombre del director.
-                                .sorted(String::compareToIgnoreCase) // Ordena alfabéticamente sin diferenciar mayúsculas/minúsculas.
-                                .collect(Collectors.toList()) // Recolecta el resultado en una List<String>.
+        return moviesService.fetchAllPages()                                                                       // Gets a Flux<ApiMoviesPage> with all the movie pages.
+                .flatMapIterable(page -> page.getData() == null ? List.<Movie>of() : page.getData()) // For each page, output each Movie; if data is null, output an empty list.
+                .map(Movie::getDirector)                                                                           // Transforms each Movie into the name of its director (String).
+                .filter(Objects::nonNull)                                                                          // Discard null directors to avoid NullPointerException.
+                .map(String::trim)                                                                                 // Removes spaces at the beginning/end of the name.
+                .filter(name -> !name.isEmpty())                                                            // Discard empty names after trim.
+                .doOnNext(director -> counts.merge(director, 1, Integer::sum))                        // Increases the director counter (merge: if it does not exist, set it to 1, if it exists, add 1).
+                .then(Mono.fromCallable(() ->                                                                     // When the previous flow finishes, it computes the final result in a Mono (encapsulated blocking operation).
+                        counts.entrySet().stream()                                                                // Browse the map entries: director -> quantity.
+                                .filter(e -> e.getValue() > threshold)                         // Keeps only directors with an amount strictly greater than the threshold.
+                                .map(Map.Entry::getKey)                                                           // It remains only with the name of the director.
+                                .sorted(String::compareToIgnoreCase)                                              // Sort alphabetically without case sensitivity.
+                                .collect(Collectors.toList())                                                     // Collects the result into a List<String>.
                 ));
     }
 

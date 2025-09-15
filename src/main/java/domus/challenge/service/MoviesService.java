@@ -4,10 +4,7 @@ import domus.challenge.integration.MoviesApiClient;
 import domus.challenge.model.ApiMoviesPage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -23,18 +20,18 @@ public class MoviesService {
     }
 
     /**
-     * Paginación "inteligente":
-     * - Lee page=1 para conocer total_pages.
-     * - Solicita el resto en paralelo con concurrencia limitada.
+     * "Smart" pagination:
+     * - Read page=1 to know total_pages.
+     * - Request the rest in parallel with limited concurrency.
      */
-    public Flux<ApiMoviesPage> fetchAllPages() {
-        return fetchPage(1)
-                .flatMapMany(first -> {
-                    int totalPages = Math.max(first.getTotalPages(), 1);
+    public Flux<ApiMoviesPage> fetchAllPages() {                               // Returns a Flux that emits ALL pages.
+        return fetchPage(1)                                                    // 1) Fetch page 1 (Mono<ApiMoviesPage>) to discover total_pages.
+                .flatMapMany(first -> {                          // 2) When page 1 arrives, turn the Mono into a Flux built from it.
+                    int totalPages = Math.max(first.getTotalPages(), 1);       // 3) Read total pages, guarding with a minimum of 1.
                     Flux<ApiMoviesPage> rest = Flux
-                            .range(2, Math.max(totalPages - 1, 0))
-                            .flatMap(this::fetchPage, /* concurrency */ 6);
-                    return Flux.concat(Mono.just(first), rest);
-                });
+                            .range(2, Math.max(totalPages - 1, 0))       // 4) Emit the sequence 2..N (count = totalPages - 1, never negative).
+                            .flatMap(this::fetchPage, /* concurrency */ 6);    // 5) For each number, fetch that page in parallel (up to 6 concurrent requests).
+                    return Flux.concat(Mono.just(first), rest);                // 6) Return a Flux that emits page 1 first, then the rest.
+                });                                                            //    (ensures page 1 is always emitted before others).
     }
 }
